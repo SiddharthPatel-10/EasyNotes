@@ -6,7 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '.././features/auth/authSlice';
+import { logout } from '../features/auth/authSlice';
 import { toast } from "react-hot-toast";
 
 const Header = () => {
@@ -62,53 +62,89 @@ const Header = () => {
           </button>
 
           {/* Navigation and Actions */}
-          <nav className={`md:flex md:items-center md:space-x-8 absolute md:static top-16 md:top-auto left-0 w-full md:w-auto bg-white md:bg-transparent transition-all duration-500 ease-in-out ${menuOpen ? 'block' : 'hidden'}`}>
-            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
-              <a href="/" className="text-gray-700 hover:text-gray-900 px-4 md:px-0">Home</a>
-              <a href="/placement" className="text-gray-700 hover:text-gray-900 px-4 md:px-0">Placement</a>
-              <a href="/products" className="text-gray-700 hover:text-gray-900 px-4 md:px-0">Notes</a>
-              <Link to="/contact" className="text-gray-700 hover:text-gray-900 px-4 md:px-0">Contact</Link>
-            </div>
+          <div className="hidden md:flex md:flex-grow  justify-center items-center">
+            {/* Centered Links */}
+            <nav className="flex space-x-8">
+              <a href="/" className="text-gray-700 hover:text-gray-900">Home</a>
+              <a href="/placement" className="text-gray-700 hover:text-gray-900">Placement</a>
+              <a href="/products" className="text-gray-700 hover:text-gray-900">Notes</a>
+              <Link to="/contactuspage" className="text-gray-700 hover:text-gray-900">Contact</Link>
+            </nav>
+          </div>
 
-            {/* Login/Signup or User Dropdown */}
-            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:ml-auto md:space-x-4">
-              {isLoggedIn ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center text-gray-700 hover:text-gray-900 px-4 md:px-0"
-                  >
-                    <UserIcon className="w-6 h-6" />
-                    <ChevronDownIcon className="w-5 h-5 ml-1" />
-                  </button>
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-200 shadow-lg rounded-xl z-50">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    className="text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded-md md:px-6 md:py-2 transition-colors duration-200"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded-md md:px-6 md:py-2 transition-colors duration-200"
-                  >
-                    Signup
-                  </Link>
-                </>
-              )}
-            </div>
+          {/* Login/Signup or User Dropdown */}
+          <div className="hidden md:flex items-center space-x-4">
+            {isLoggedIn ? (
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center text-gray-700 hover:text-gray-900"
+                >
+                  <UserIcon className="w-6 h-6" />
+                  <ChevronDownIcon className="w-5 h-5 ml-1" />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-24 bg-white border border-gray-200 shadow-lg rounded-xl z-50">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:rounded-xl shadow-xl"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded-md transition-colors duration-200"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded-md transition-colors duration-200"
+                >
+                  Signup
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className={`md:hidden ${menuOpen ? 'block' : 'hidden'} px-6 pb-4`}>
+          <nav className="flex flex-col items-center space-y-4">
+            <a href="/" className="text-gray-700 hover:text-gray-900">Home</a>
+            <a href="/placement" className="text-gray-700 hover:text-gray-900">Placement</a>
+            <a href="/products" className="text-gray-700 hover:text-gray-900">Notes</a>
+            <Link to="/contactuspage" className="text-gray-700 hover:text-gray-900">Contact</Link>
+
+            {/* Login/Signup for Mobile */}
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="text-left rounded-md transition-colors duration-200 px-4 py-2 border-gray-300 border text-gray-700 hover:bg-gray-100 hover:rounded-xl"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded-md transition-colors duration-200"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="text-gray-700 hover:text-gray-900 px-4 py-2 border border-gray-300 rounded-md transition-colors duration-200"
+                >
+                  Signup
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </div>

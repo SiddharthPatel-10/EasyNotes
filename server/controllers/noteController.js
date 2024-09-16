@@ -1,75 +1,104 @@
-const asyncHandler = require("express-async-handler");
-const Note = require("../models/Note");
-const cloudinary = require("cloudinary").v2;
-const path = require("path");
-const fs = require("fs");
+// Import required modules
+const { google } = require('googleapis');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
+const asyncHandler = require('express-async-handler');
+const Note = require('../models/Note');
 
-// Configure Cloudinary with your credentials
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
+// Load your Google Drive credentials from the downloaded JSON file
+const credentials = require('../easynotes-435808-3139beee34c3.json'); // Update this path
+
+// Configure Google API
+const auth = new google.auth.GoogleAuth({
+  keyFile: path.join(__dirname, '../easynotes-435808-3139beee34c3.json'), // Your credentials file path
+  scopes: ['https://www.googleapis.com/auth/drive'],
 });
 
-// Upload PDF to Cloudinary
-const uploadPdf = async (filePath) => {
+const drive = google.drive({ version: 'v3', auth });
+
+// Multer configuration for file upload
+const upload = multer({ dest: 'uploads/' });
+
+// Function to upload a PDF to Google Drive
+const uploadPdfToGoogleDrive = async (filePath) => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      resource_type: "raw", // Specify that you're uploading a raw file (PDF in this case)
+    const fileMetadata = {
+      name: path.basename(filePath),
+      parents: ['16w_FwqiLXVXMTxPkmg4D7IbIn7MWOx49'], // Your Google Drive folder ID
+    };
+
+    const media = {
+      mimeType: 'application/pdf',
+      body: fs.createReadStream(filePath),
+    };
+
+    const response = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id, webContentLink', // Changed to use webContentLink
     });
-    console.log("Upload result:", result);
-    return result.secure_url;
+
+    // Set file permissions
+    await drive.permissions.create({
+      fileId: response.data.id,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone', // Anyone with the link can read the file
+      },
+    });
+
+    console.log('Uploaded file:', response.data);
+    return response.data.webContentLink; // Use webContentLink for direct downloads
   } catch (error) {
-    console.error("Error uploading file:", error);
+    console.error('Error uploading file to Google Drive:', error);
     throw error;
   }
 };
 
-// @desc    Create a new note
-// @route   POST /api/notes
-// @access  Private/Admin
+// Route to create a new note
 const createNote = asyncHandler(async (req, res) => {
   const { title, subjectId } = req.body;
 
   if (!req.file) {
     res.status(400);
-    throw new Error("No file provided");
+    throw new Error('No file provided');
   }
 
   const filePath = req.file.path;
 
   try {
-    const fileUrl = await uploadPdf(filePath);
+    const fileUrl = await uploadPdfToGoogleDrive(filePath);
 
-    // Create a new note with the Cloudinary URL
+    // Create a new note with the Google Drive URL
     const note = new Note({
       title,
-      fileUrl,
+      fileUrl, // The URL of the file on Google Drive
       subject: subjectId,
     });
 
     const createdNote = await note.save();
 
-    // Clean up local file
+    // Clean up the local file after uploading
     fs.unlink(filePath, (err) => {
       if (err) {
-        console.error("Error removing local file:", err);
+        console.error('Error removing local file:', err);
       } else {
-        console.log("Local file removed successfully.");
+        console.log('Local file removed successfully.');
       }
     });
 
     res.status(201).json(createdNote);
   } catch (error) {
-    console.error("Error uploading file to Cloudinary:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error uploading file to Cloudinary",
-        error: error.message,
-      });
+    console.error('Error uploading file to Google Drive:', error);
+    res.status(500).json({
+      message: 'Error uploading file to Google Drive',
+      error: error.message,
+    });
   }
 });
+
+
 
 // @desc    Get all notes
 // @route   GET /api/notes

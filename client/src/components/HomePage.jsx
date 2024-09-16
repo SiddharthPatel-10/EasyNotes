@@ -6,6 +6,7 @@ import QuotePage from './QuotePage';
 import ContactUsPage from './ContactUsPage';
 import Footer from './Footer';
 import Header from './Header';
+import Testimonials from './Testimonials';
 
 const HomePage = () => {
   return (
@@ -14,6 +15,7 @@ const HomePage = () => {
     <CoursePage/>
     <ContributePage/>
     <ServicesPage/>
+    {/* <Testimonials/> */}
     <QuotePage/>
     <ContactUsPage/>
     <Footer/>
