@@ -7,11 +7,11 @@ const asyncHandler = require('express-async-handler');
 const Note = require('../models/Note');
 
 // Load your Google Drive credentials from the downloaded JSON file
-const credentials = require('../easynotes-435808-3139beee34c3.json'); // Update this path
+const credentialsPath = path.join(__dirname, '../easynotes-435808-3139beee34c3.json'); // Update this path
 
 // Configure Google API
 const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, '../easynotes-435808-3139beee34c3.json'), // Your credentials file path
+  keyFile: credentialsPath, // Your credentials file path
   scopes: ['https://www.googleapis.com/auth/drive'],
 });
 
@@ -36,7 +36,7 @@ const uploadPdfToGoogleDrive = async (filePath) => {
     const response = await drive.files.create({
       resource: fileMetadata,
       media: media,
-      fields: 'id, webContentLink', // Changed to use webContentLink
+      fields: 'id, webContentLink', // Use webContentLink for direct downloads
     });
 
     // Set file permissions
@@ -97,6 +97,7 @@ const createNote = asyncHandler(async (req, res) => {
     });
   }
 });
+
 
 
 
