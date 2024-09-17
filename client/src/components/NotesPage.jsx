@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchNotes } from "../features/notes/notesSlice";
@@ -8,10 +8,11 @@ const NotesPage = () => {
   const dispatch = useDispatch();
   const { subjectId } = useParams();
 
-  // Get notes from Redux state
   const notes = useSelector((state) => state.notes.notes);
   const loading = useSelector((state) => state.notes.loading);
   const error = useSelector((state) => state.notes.error);
+  
+  const [preFetchedFiles, setPreFetchedFiles] = useState({});
 
   useEffect(() => {
     if (subjectId) {
@@ -19,25 +20,30 @@ const NotesPage = () => {
     }
   }, [subjectId, dispatch]);
 
+  const prefetchFile = async (fileUrl) => {
+    try {
+      await fetch(fileUrl, { method: 'HEAD' });
+      setPreFetchedFiles(prevState => ({ ...prevState, [fileUrl]: true }));
+    } catch (error) {
+      console.error("Error pre-fetching file:", error);
+    }
+  };
+
+  useEffect(() => {
+    notes.forEach(note => {
+      if (note.fileUrl && !preFetchedFiles[note.fileUrl]) {
+        prefetchFile(note.fileUrl);
+      }
+    });
+  }, [notes, preFetchedFiles]);
+
   const downloadFile = (fileUrl, fileName) => {
-    fetch(fileUrl, {
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/pdf",
-      },
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      })
-      .catch((err) => console.error("Download failed:", err));
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   if (loading) {

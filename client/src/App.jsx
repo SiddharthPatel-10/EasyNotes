@@ -13,6 +13,8 @@ import ContactUsPage from './components/ContactUsPage';
 import Signup from './components/Pages/Auth/Signup'
 import Login from './components/Pages/Auth/Login'
 import Header from './components/Header';
+import Testimonials from './components/Testimonials';
+import PageNotFound from './components/PageNotFound';
 
 const App = () => {
   return (
@@ -30,7 +32,8 @@ const App = () => {
         <Route path="/contactuspage" element={<ContactUsPage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        {/* <Route path="*" element={<PageNotFound />} /> */}
+        <Route path="/testimonials" element={<Testimonials />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Router>
   );

@@ -31,6 +31,7 @@ const branchRoutes = require("./routes/branchRoutes");
 const semesterRoutes = require("./routes/semesterRoutes");
 const contactUsRoute = require("./routes/contactusRoute");
 const user = require('./routes/userRoutes'); 
+const testimonialsRoutes = require('./routes/testimonials');
 
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
@@ -40,6 +41,7 @@ app.use("/api/branches", branchRoutes);
 app.use("/api/semesters", semesterRoutes);
 app.use("/api/reach", contactUsRoute);
 app.use('/api/auth', user);
+app.use('/api', testimonialsRoutes);
 
 
 // Start the server
