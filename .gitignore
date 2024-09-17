@@ -14,6 +14,10 @@ dist/
 client/node_modules/
 server/node_modules/
 
+
+# Service account credentials
+server/easynotes-435808-3139beee34c3.json
+
 # Environment variables
 # Environment variables
 client/.env
